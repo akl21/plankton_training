@@ -14,7 +14,7 @@ summarize_pcr_failures <- function(pcr_table_arg){
   select(pcr_table_arg, voucher_number, pcr_success) %>%
     filter(pcr_success == 0 & !(pcr_success==1)) %>%
     group_by(voucher_number) %>%
-    summarise(pcr_success= n())
+    summarise(pcr_failure= n())
 
 }
 
@@ -25,7 +25,7 @@ summarize_pcr_failures <- function(pcr_table_arg){
 
 summarize_pcr_failures(pcr_table) %>%
   left_join(phylum_table) %>%
-  select(voucher_number, pcr_success, phylum) %>%
+  select(voucher_number, pcr_failure, phylum) %>%
   group_by(phylum) %>%
-  summarise(pcr_success = n())
+  summarise(pcr_failure = n())
 
