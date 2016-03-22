@@ -1,8 +1,8 @@
-pcr_table = read.csv(file = "~/pcr_counter/data/pcr_data.csv", 
+pcr_table <- read.csv(file = "~/pcr_counter/data/pcr_data.csv", 
                      stringsAsFactors = FALSE)
-phylum_table = read.csv("~/pcr_counter/data/phylum_listings.csv", 
+phylum_table <- read.csv("~/pcr_counter/data/phylum_listings.csv", 
                         stringsAsFactors= FALSE)
-#install.packages("dplyr")
+
 library("dplyr")
 
 #This function takes an input of a data frame, selects for the 
@@ -10,7 +10,7 @@ library("dplyr")
 #for which the PCR failed every time, then finally produces a count 
 #of how many times the PCR failed for each voucher number.
 
-summarize_pcr_failures = function(pcr_table_arg){
+summarize_pcr_failures <- function(pcr_table_arg){
   select(pcr_table_arg, voucher_number, pcr_success) %>%
     filter(pcr_success == 0 & !(pcr_success==1)) %>%
     group_by(voucher_number) %>%
