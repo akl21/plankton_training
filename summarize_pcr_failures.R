@@ -1,6 +1,6 @@
-pcr_table <- read.csv(file = "~/pcr_counter/data/pcr_data.csv", 
+pcr_table <- read.csv(file = "data/pcr_data.csv", 
                      stringsAsFactors = FALSE)
-phylum_table <- read.csv("~/pcr_counter/data/phylum_listings.csv", 
+phylum_table <- read.csv("data/phylum_listings.csv", 
                         stringsAsFactors= FALSE)
 
 library("dplyr")
