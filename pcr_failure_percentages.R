@@ -23,13 +23,15 @@ pcr_attempts_function(pcr_table)
 #This code block inputs our PCR table into the summarize_pcr_failures
 #function, then left joins it with the table containing the phylums associated
 #with the voucher numbers, and outputs a table listing the phylum and number of
-#PCR failures.
+#PCR failures. The resulting table is named pcr_failure_table.
 
-summarize_pcr_failures(pcr_table) %>%
+pcr_failure_table <- summarize_pcr_failures(pcr_table) %>%
   left_join(phylum_table) %>%
   select(pcr_failure, phylum) %>%
   group_by(phylum) %>%
   summarise(pcr_failure = n())
+
+pcr_failure_table
 
 #This function takes a PCR table as an argument, right joins it with the 
 #table listing the phyla of the samples, then outputs the number of times
@@ -42,6 +44,14 @@ rightjoin_function = function(pcr_table_arg) {
     summarise(pcr_success = n())
 }
 
-rightjoin_function(pcr_table)
+#This codeblock applies the above function to the PCR dataframe and names the
+#resulting table numbers_in_phyla
+numbers_in_phyla <- rightjoin_function(pcr_table)
+numbers_in_phyla
 
+#This codeblock joins numbers_in_phyla and pcr_failure_table and outputs
+#the percentages of PCR failure for each phylum.
+numbers_in_phyla %>%
+  left_join(pcr_failure_table) %>%
+  mutate(pcr_failure/pcr_success) 
 
