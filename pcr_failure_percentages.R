@@ -53,5 +53,6 @@ numbers_in_phyla
 #the percentages of PCR failure for each phylum.
 numbers_in_phyla %>%
   left_join(pcr_failure_table) %>%
-  mutate(pcr_failure/pcr_success) 
+  mutate(percentage_failure = pcr_failure/pcr_success) %>%
+  select(phylum, percentage_failure)
 
