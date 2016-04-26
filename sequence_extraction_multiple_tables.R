@@ -10,7 +10,7 @@ template_file <- read.csv(file = "20160405-table-template.csv",
                           stringsAsFactors = FALSE)
 library("dplyr")
 
-#This code block outputs a table showing whether or not the sample has had a 
+#This function outputs a table showing whether or not the sample has had a 
 #sequence extraction: 1 if it did, 0 if not
 has_seq_extract = function(phylum_listings, extraction_table){
   phylum_listings %>%
@@ -18,23 +18,18 @@ has_seq_extract = function(phylum_listings, extraction_table){
     group_by(voucher_number) %>%
     summarize(has_extraction = n())
 }
-tt = has_seq_extract(phylum_listings, extraction_table)
-tt
 
 
-
-#Here I find the number of PCR sequencing attempts for each voucher.
+#In this function I find the number of PCR sequencing attempts for each voucher.
 count_pcr_trials <- function(pcr_data){
   select(pcr_data, voucher_number, pcr_success) %>%
     group_by(voucher_number) %>%
     summarize(number_pcr_attempts = n())
     
 }
-tt1 <- count_pcr_trials(pcr_table) %>%
-  left_join(phylum_listings) %>%
-  select(voucher_number, phylum, number_pcr_attempts)
 
-#This code module generates a table showing which vouchers were successful at PCR.
+
+#This function generates a table showing which vouchers were successful at PCR.
 summarize_pcr_successes <- function(pcr_data){
   select(pcr_data, voucher_number, pcr_success) %>%
     filter(pcr_success==1) %>%
@@ -42,9 +37,9 @@ summarize_pcr_successes <- function(pcr_data){
     summarise(pcr_successful= n())
   
 }
-tt2 <- summarize_pcr_successes(pcr_table)
 
-#In this code module I try to create a table named has_seq_file using the list.files()
+
+#In this function I create a table named has_seq_file using the list.files()
 #function that shows whether each voucher as a sequence file associated with it. 
 has_seq_file <- function(seq_path, pcr_table) {
   seq_files <-  list.files(path = seq_path) 
@@ -54,34 +49,32 @@ has_seq_file <- function(seq_path, pcr_table) {
                               "has_sequence_file" = has_seq_file, stringsAsFactors = FALSE)
   has_seq_file
 }
-tt3 <- has_seq_file("seqs/COI", pcr_table)
-tt3
 
-#This code block produces a table that lists whether or not each 
+#This function produces a table that lists whether or not each 
 #voucher was successful in being sequenced.
 seq_success = function(sequencing_plate_data, pcr_table){
-  tt4 <- sequencing_plate_data %>%
+  seq_success_tbl <- sequencing_plate_data %>%
     left_join(pcr_table) %>%
     select(voucher_number, sequence_success = success)
-  tt4
+  seq_success_tbl
 }
-tt4 = seq_success(sequencing_plate_data, pcr_table)
-tt4
+
+#This function combines all the tables I create in functions above.
 sample_status = function(pcr_tbl = pcr_table, 
                          ext_tbl = extraction_table,
                          phy_listings = phylum_listings, 
                          seq_plate_data = sequencing_plate_data,
                          seq_pth = "seqs/COI"){
-  tt <-  has_seq_extract(phy_listings, ext_tbl)
-  tt1 <- count_pcr_trials(pcr_tbl) %>%
+  seq_ext_tbl <-  has_seq_extract(phy_listings, ext_tbl)
+  pcr_attempt_tbl <- count_pcr_trials(pcr_tbl) %>%
     left_join(phy_listings) %>%
     select(voucher_number, phylum, number_pcr_attempts)
-  tt2 <- summarize_pcr_successes(pcr_tbl)
-  tt3 <- has_seq_file(seq_pth, pcr_tbl)
-  tt4 <-  seq_success(seq_plate_data, pcr_tbl)
-  tt %>%
-    left_join(tt1) %>%
-    left_join(tt2) %>%
-    left_join(tt3) %>%
-    left_join(tt4)
+  pcr_success_tbl <- summarize_pcr_successes(pcr_tbl)
+  seq_file_tbl <- has_seq_file(seq_pth, pcr_tbl)
+  seq_success_tbl <-  seq_success(seq_plate_data, pcr_tbl)
+  seq_ext_tbl %>%
+    left_join(pcr_attempt_tbl) %>%
+    left_join(pcr_success_tbl) %>%
+    left_join(seq_file_tbl) %>%
+    left_join(seq_success_tbl)
 }
